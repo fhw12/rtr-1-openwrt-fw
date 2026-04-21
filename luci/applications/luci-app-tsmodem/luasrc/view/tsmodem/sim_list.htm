@@ -19,7 +19,22 @@
 
 <% 	--[[=========== TSMODEM.CONSOLE ==========]] %>
 
-<%+tsmconsole/ui_widgets/UIModal.js%>
+<%
+local function tsmatconsole_check()
+	local tsmatconsole_web_path = "/usr/lib/lua/luci/view/tsmatconsole"
+	return os.rename(tsmatconsole_web_path, tsmatconsole_web_path)
+end
+
+local tsmatconsole_check_ok, tsmatconsole_check_exists = pcall(tsmatconsole_check)
+
+if tsmatconsole_check_ok and tsmatconsole_check_exists then
+%>
+	<%+tsmatconsole/ui_widgets/UIModal.js%>
+<%
+end
+%>
+
+
 <%+tsmconsole/ui_widgets/UIModalSMS_send.js%>
 
 
@@ -155,6 +170,7 @@ L.require("ui").then(function(ui){
 	L.require('dom').then(function(dom) {
 		L.require("uci").then(function(uci) {
 			uci.load("tsmodem").then(function(out){
+				var is_tsmatconsole_web_exists = '<%=is_tsmatconsole_web_exists %>';
 
 				// Make name of Slot depending on auto or selected proto
 				var sim_0_memo = uci.get("tsmodem", "sim_0", "name")
@@ -194,7 +210,7 @@ L.require("ui").then(function(ui){
 					balance: " ",
 				});
 
-				var countdownNew = new ui.CountdownNew("1", "Заголовок", "Описание")
+				var countdownNew = new ui.CountdownNew("1", "Заголовок", "Описание");
 
 
 			  	var viewCountDown= document.getElementById('ui-countdownNew');
@@ -224,20 +240,19 @@ L.require("ui").then(function(ui){
 
 
 				var viewWrapper= document.getElementById('simcards_rows');
-				var widget_simsetting_0 = sim_0_setting.render()
-				viewWrapper.appendChild(widget_simsetting_0)
+				var widget_simsetting_0 = sim_0_setting.render();
+				viewWrapper.appendChild(widget_simsetting_0);
 
-				var console_modal = new ui.Modal();
-				$("body").append(console_modal.render())
+
+				// console.log('ui.Modal: ', ui.Modal);
+				if(ui.Modal != undefined) {
+					var console_modal = new ui.Modal();
+					$("body").append(console_modal.render());
+				}
+
 
 				var sms_send_modal = new ui.ModalSMS_send();
-				$("body").append(sms_send_modal.render())
-
-
-
-
-				console_modal.start_modem_automation()
-
+				$("body").append(sms_send_modal.render());
 			});
 		});
 	});

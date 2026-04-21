@@ -4,7 +4,36 @@ local util = require "luci.util"
 local ubus_sim = util.ubus("tsmodem.driver", "sim", {})
 local sim_id = (ubus_sim and ubus_sim["value"]) and ubus_sim["value"] or nil
 
--- Проверить запущен ли сервис tsmatconsole
+
+
+-- Проверка запущен ли сервис tsmatconsole
+
+local sys = require "luci.sys"
+
+local result = sys.process.exec({ "/bin/sh", "-c", "service tsmatconsole status" }, true, true, false)
+local is_tsmatconsole_service_running = ""
+
+if result and result.stdout then
+	if result.stdout:find("running") then
+		is_tsmatconsole_service_running = "true"
+	end
+end
+
+
+
+-- Проверка есть ли tsmatconsole веб-интерфейс ( /usr/lib/lua/luci/view/tsmatconsole )
+
+local function tsmatconsole_check()
+	local tsmatconsole_web_path = "/usr/lib/lua/luci/view/tsmatconsole"
+	return os.rename(tsmatconsole_web_path, tsmatconsole_web_path)
+end
+
+local tsmatconsole_check_ok, tsmatconsole_check_exists = pcall(tsmatconsole_check)
+local is_tsmatconsole_web_exists = ""
+
+if tsmatconsole_check_ok and tsmatconsole_check_exists then
+	is_tsmatconsole_web_exists = "true"
+end
 
 %>
 
@@ -26,6 +55,15 @@ local sim_id = (ubus_sim and ubus_sim["value"]) and ubus_sim["value"] or nil
 						this.balance_sms_text = ""
 
 						// console.log('options: ', options);
+
+						var is_tsmatconsole_service_running = '<%=is_tsmatconsole_service_running %>';
+						var is_tsmatconsole_web_exists = '<%=is_tsmatconsole_web_exists %>';
+
+						if(is_tsmatconsole_service_running != "true" || is_tsmatconsole_web_exists != "true") {
+							setTimeout(function() {
+								$(".webconsole").hide();
+							}, 0);
+						}
 
 						this.cpin = options.cpin
 						this.netreg = options.netreg
@@ -934,7 +972,7 @@ local sim_id = (ubus_sim and ubus_sim["value"]) and ubus_sim["value"] or nil
 						})
 
 						// -------------------------------------------------------
-						// tsmconsole UI updates: Activate button enable / disable
+						// tsmatconsole UI updates: Activate button enable / disable
 						//
 						// If UIWebSocket fires "ubus" event with "do_switch" method, then
 						// we disable "Activate" buttons for both Sim cards
