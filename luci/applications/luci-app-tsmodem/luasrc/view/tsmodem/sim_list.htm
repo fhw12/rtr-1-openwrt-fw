@@ -19,6 +19,8 @@
 
 <% 	--[[=========== TSMODEM.CONSOLE ==========]] %>
 
+
+
 <%
 local function tsmatconsole_check()
 	local tsmatconsole_web_path = "/usr/lib/lua/luci/view/tsmatconsole"
@@ -35,7 +37,22 @@ end
 %>
 
 
-<%+tsmconsole/ui_widgets/UIModalSMS_send.js%>
+
+<%
+local function tsmsmsconsole_check()
+	local tsmsmsconsole_web_path = "/usr/lib/lua/luci/view/tsmsmsconsole"
+	return os.rename(tsmsmsconsole_web_path, tsmsmsconsole_web_path)
+end
+
+local tsmsmsconsole_check_ok, tsmsmsconsole_check_exists = pcall(tsmsmsconsole_check)
+
+if tsmsmsconsole_check_ok and tsmsmsconsole_check_exists then
+%>
+	<%+tsmsmsconsole/ui_widgets/UIModal.js%>
+<%
+end
+%>
+
 
 
 <% --[[=========== LUA BACKEND ==========]] %>
@@ -244,15 +261,15 @@ L.require("ui").then(function(ui){
 				viewWrapper.appendChild(widget_simsetting_0);
 
 
-				// console.log('ui.Modal: ', ui.Modal);
 				if(ui.Modal != undefined) {
 					var console_modal = new ui.Modal();
 					$("body").append(console_modal.render());
 				}
 
-
-				var sms_send_modal = new ui.ModalSMS_send();
-				$("body").append(sms_send_modal.render());
+				if(ui.ModalTsmsmsconsole != undefined) {
+					var modal_tsmsmsconsole = new ui.ModalTsmsmsconsole();
+					$("body").append(modal_tsmsmsconsole.render());
+				}
 			});
 		});
 	});

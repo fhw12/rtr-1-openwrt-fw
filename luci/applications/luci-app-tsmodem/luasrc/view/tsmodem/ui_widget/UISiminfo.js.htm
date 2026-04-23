@@ -20,7 +20,6 @@ if result and result.stdout then
 end
 
 
-
 -- Проверка есть ли tsmatconsole веб-интерфейс ( /usr/lib/lua/luci/view/tsmatconsole )
 
 local function tsmatconsole_check()
@@ -34,6 +33,37 @@ local is_tsmatconsole_web_exists = ""
 if tsmatconsole_check_ok and tsmatconsole_check_exists then
 	is_tsmatconsole_web_exists = "true"
 end
+
+
+
+-- Проверка запущен ли сервис tsmsmsconsole
+
+local sys = require "luci.sys"
+
+local result = sys.process.exec({ "/bin/sh", "-c", "service tsmsmsconsole status" }, true, true, false)
+local is_tsmsmsconsole_service_running = ""
+
+if result and result.stdout then
+	if result.stdout:find("running") then
+		is_tsmsmsconsole_service_running = "true"
+	end
+end
+
+
+-- Проверка есть ли tsmsmsconsole веб-интерфейс ( /usr/lib/lua/luci/view/tsmsmsconsole )
+
+local function tsmsmsconsole_check()
+	local tsmsmsconsole_web_path = "/usr/lib/lua/luci/view/tsmsmsconsole"
+	return os.rename(tsmsmsconsole_web_path, tsmsmsconsole_web_path)
+end
+
+local tsmsmsconsole_check_ok, tsmsmsconsole_check_exists = pcall(tsmsmsconsole_check)
+local is_tsmsmsconsole_web_exists = ""
+
+if tsmsmsconsole_check_ok and tsmsmsconsole_check_exists then
+	is_tsmsmsconsole_web_exists = "true"
+end
+
 
 %>
 
