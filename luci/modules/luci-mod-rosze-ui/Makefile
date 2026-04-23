@@ -8,7 +8,7 @@ LUCI_TITLE:=LuCI TechnoSkver RTR02 UI module
 LUCI_DESCRIPTION:=UI module for Double SIM management for Skw92A with Sim7600 modem integration.
 LUCI_TYPE:=mod
 
-PKG_NAME:=luci-mod-tsmodem-ui
+PKG_NAME:=luci-mod-rosze-ui
 PKG_VERSION:=3.0.1
 PKG_RELEASE:=20230614
 PKG_LICENSE:=GPL-3.0-or-later
