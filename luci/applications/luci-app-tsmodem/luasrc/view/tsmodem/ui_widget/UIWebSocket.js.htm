@@ -25,98 +25,6 @@ L.require('ui').then(function(ui) {
 	                dom.bindClassInstance(divEl, this);
 					window.EventBus.registerTo(this.node,"websocket");
 
-					// -----------------------------------------------------------
-					// Subscribe to UISiminfo widget. On "Activate" button pressed
-					// -----------------------------------------------------------
-					window.EventBus.listenToASAP("UISiminfo_0", ["btn_activate_pressed"], function(ev) {
-
-						var event_data = ev.detail || {}
-						self.simid = event_data.simid || self.simid || "simid-0"
-
-						self.socket.send(JSON.stringify({
-							proto: "ubus",
-							uuid: event_data.uuid || "",
-							obj: "tsmstm",
-							method: "switch",
-							params: {
-								simid: "0",
-								rule: "user  slot #1"
-							}
-						}));
-
-					})
-
-					window.EventBus.listenToASAP("UISiminfo_1", ["btn_activate_pressed"], function(ev) {
-						console.log("btn_activate_pressed")
-
-						var event_data = ev.detail || {}
-						self.simid = event_data.simid || self.simid || "simid-0"
-
-						self.socket.send(JSON.stringify({
-							proto: "ubus",
-							uuid: event_data.uuid || "",
-							obj: "tsmstm",
-							method: "switch",
-							params: {
-								simid: "1",
-								rule: "user  slot #2"
-							}
-						}));
-
-					})
-
-
-					// -----------------------------------------------------------
-					// Subscribe to UISiminfo widget. On "Balance" button pressed
-					// -----------------------------------------------------------
-					window.EventBus.listenToASAP("UISiminfo_0", ["btn_balance_pressed"], function(ev) {
-						var event_data = ev.detail || {}
-						self.simid = event_data.simid || self.simid || 0
-
-						L.require("uci").then(function(uci) {
-							uci.load("tsmodem_adapter_provider").then(function(out){
-								var ussd_comm = uci.get("tsmodem_adapter_provider",event_data.provider_code, "balance_ussd") || ""
-
-								self.socket.send(JSON.stringify({
-									proto: "ubus",
-									uuid: event_data.uuid || "",
-									obj: "tsmodem.driver",
-									method: "send_at",
-									params: {
-										command: "AT+CUSD=1," + ussd_comm + ",15",
-										["what-to-update"]: "balance",
-									}
-								}));
-
-							});
-						});
-					})
-
-					window.EventBus.listenToASAP("UISiminfo_1", ["btn_balance_pressed"], function(ev) {
-						var event_data = ev.detail || {}
-						self.simid = event_data.simid || self.simid || 1
-
-						L.require("uci").then(function(uci) {
-							uci.load("tsmodem_adapter_provider").then(function(out){
-								var ussd_comm = uci.get("tsmodem_adapter_provider",event_data.provider_code, "balance_ussd") || ""
-
-
-								self.socket.send(JSON.stringify({
-									proto: "ubus",
-									uuid: event_data.uuid || "",
-									obj: "tsmodem.driver",
-									method: "send_at",
-									params: {
-										command: "AT+CUSD=1," + ussd_comm + ",15",
-										["what-to-update"]: "balance",
-									}
-								}));
-
-
-							});
-						});
-					})
-
 					window.EventBus.listenToASAP("UIModal", ["send-at-command"], function(ev) {
 						var event_data = ev.detail || {}
 						console.log('window.EventBus.listenToASAP "UIModal"', event_data);
@@ -134,7 +42,7 @@ L.require('ui').then(function(ui) {
 					window.EventBus.listenToASAP("UIModalSMS_send", ["send-sms"], function(ev) {
 						var event_data = ev.detail || {}
 
-						console.log(event_data)
+						console.log(event_data);
 
 						self.socket.send(JSON.stringify({
 							proto: "ubus",

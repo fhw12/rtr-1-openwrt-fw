@@ -85,6 +85,7 @@ end
 						this.balance_sms_text = ""
 
 						// console.log('options: ', options);
+						// console.log('simid: ', this.simid, typeof(this.simid)); // this.simid = ("0" | "1") - string type
 
 						var is_tsmatconsole_service_running = '<%=is_tsmatconsole_service_running %>';
 						var is_tsmatconsole_web_exists = '<%=is_tsmatconsole_web_exists %>';
@@ -228,6 +229,12 @@ end
 							object: 'tsmodem.sms',
 							method: 'send_sms',
 							params: ["phone", "text"],
+						});
+
+						this.tsmstm_switch = rpc.declare({
+							object: 'tsmstm',
+							method: 'switch',
+							params: ["simid", "rule"],
 						});
 
 						this.is_tsmodem_locked_last_check_time = false;
@@ -385,14 +392,31 @@ end
 							}
 
 							this.chunk.btn_activate.onclick = function(){
+								self.waitme();
 
-								self.waitme()
-
+								// Для UISiminfo виджета - clearInfo
 								self.fireEvent("btn_activate_pressed", {
 									simid: self.simid,
 									uuid: uuid(),
-								})
-								self.chunk.btn_activate.disabled = true
+								});
+
+								// Переключение симкарты через ubus rpc
+								var rule_text = "user  slot #1";
+								if( self.simid == "1" ) {
+									rule_text = "user  slot #2";
+								}
+
+								// console.log('tsmstm_switch start');
+								// console.log('new_active_sim_id: ', new_active_sim_id);
+								// console.log('rule_text: ', rule_text);
+								// console.log('simid: ',  self.simid, self.simid == "0", self.simid == "1");
+
+								self.tsmstm_switch(self.simid, rule_text).then((response) => {
+									console.log('switch: ', response);
+								});
+								// console.log('tsmstm_switch end');
+
+								self.chunk.btn_activate.disabled = true;
 							}
 
 							this.chunk.btn_balance.onclick = function(e) {
@@ -418,12 +442,6 @@ end
 							}
 
 							this.chunk.btn_console.onclick = function(){
-								// self.fireEvent("btn_activate_pressed", {
-								// 	simid: self.simid,
-								// 	uuid: uuid(),
-								// })
-								// self.chunk.btn_activate.disabled = true
-
 								self.fireEvent("btn_console_pressed", {
 									simid: self.simid
 								})
@@ -1000,6 +1018,7 @@ end
 								}
 							}
 						})
+
 
 						// -------------------------------------------------------
 						// tsmatconsole UI updates: Activate button enable / disable
